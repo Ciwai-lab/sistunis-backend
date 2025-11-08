@@ -1,0 +1,352 @@
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Masukkan data dummy agar ada isinya saat di-test
+INSERT INTO users (username, email) VALUES ('ciwai_lab', 'ciwai@lab.com');
+sistunis_db=> GRANT CREATE ON SCHEMA public TO sistunis_admin;
+GRANT CREATE ON SCHEMA public TO sistunis_admin;
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Masukkan data dummy agar ada isinya saat di-test
+INSERT INTO users (username, email) VALUES ('ciwai_lab', 'ciwai@lab.com');
+sistunis_db=> CREATE TABLE users (
+sistunis_db(>     id SERIAL PRIMARY KEY,
+sistunis_db(>     username VARCHAR(50) UNIQUE NOT NULL,
+sistunis_db(>     email VARCHAR(100) UNIQUE NOT NULL,
+sistunis_db(>     created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+sistunis_db(> );
+CREATE TABLE
+sistunis_db=> INSERT INTO users (username, email) VALUES ('ciwai_lab', 'ciwai@lab.com');
+INSERT 0 1
+\q
+sistunis_db=> \dt
+\dt
+SELECT * FROM users;
+sistunis_db=> SELECT * FROM users;
+\q
+sistunis_db=> GRANT CREATE ON SCHEMA public TO sistunis_admin;
+GRANT CREATE ON SCHEMA public TO sistunis_admin;
+CREATE TABLE users (
+id SERIAL PRIMARY KEY,
+username VARCHAR(50) UNIQUE NOT NULL,
+email VARCHAR(100) UNIQUE NOT NULL,
+created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+REVOKE ALL ON SCHEMA public FROM PUBLIC;
+CREATE SCHEMA sistunis AUTHORIZATION sistunis_admin;
+CREATE SCHEMA
+\q
+sistunis_db=> CREATE SCHEMA sistunis AUTHORIZATION sistunis_admin;
+sistunis_db=> SET search_path TO sistunis, public;
+CREATE SCHEMA sistunis AUTHORIZATION sistunis_admin;
+\q
+CREATE SCHEMA sistunis AUTHORIZATION sistunis_admin;
+RANT CREATE ON DATABASE sistunis_db TO sistunis_admin;
+GRANT
+GRANT CREATE ON DATABASE sistunis_db TO sistunis_admin;
+GRANT
+\q
+GRANT CREATE ON DATABASE sistunis_db TO sistunis_admin;
+CREATE SCHEMA sistunis AUTHORIZATION sistunis_admin;
+\q
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(150) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO users (name, email)
+VALUES ('Admin SISTUNIS', 'admin@sistunis.local');
+SELECT * FROM users;
+]q
+\q
+GRANT ALL PRIVILEGES ON SCHEMA public TO sistunis_admin;
+ALTER USER sistunis_admin WITH CREATEDB CREATEROLE;
+\dn+
+CREATE SCHEMA sistunis AUTHORIZATION sistunis_admin;
+ALTER ROLE sistunis_admin SET search_path TO sistunis;
+CREATE TABLE sistunis.users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(150) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO sistunis.users (name, email)
+VALUES ('Admin SISTUNIS', 'admin@sistunis.local');
+GRANT ALL PRIVILEGES ON SCHEMA public TO sistunis_admin;
+ALTER USER sistunis_admin WITH CREATEDB CREATEROLE;
+\dn+
+\q
+CREATE TABLE users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(100),
+    email VARCHAR(150) UNIQUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+INSERT INTO users (name, email)
+VALUES ('Admin SISTUNIS', 'admin@sistunis.local');
+SELECT * FROM users;
+\q
+ALTER ROLE sistunis_admin SET search_path TO public;
+GRANT ALL ON SCHEMA public TO sistunis_admin;
+\q
+\d users
+\q
+curl -X POST -H "Content-Type: application/json" -d '{"name":"user_final", "email":"user_final@sistunis.com", "password":"securepass"}' http://localhost:3000/api/users/register
+curl -X POST -H "Content-Type: application/json" -d '{"name":"user_final", "email":"user_final@sistunis.com", "password":"securepass"}' http://localhost:3000/api/users/register
+\q
+\s users
+\d users
+\q
+ALTER TABLE users ADD COLUMN password_hash VARCHAR(255);
+\q
+CREATE TABLE posts (
+    id SERIAL PRIMARY KEY,
+    user_id INTEGER NOT NULL REFERENCES users(id), -- KUNCI: Menghubungkan ke tabel users
+    title VARCHAR(255) NOT NULL,
+    content TEXT,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+\q
+-- 1. Membuat Tabel ROLES
+CREATE TABLE IF NOT EXISTS roles (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(50) UNIQUE NOT NULL, 
+    description TEXT
+);
+
+-- 2. Mengisi Data Awal (Hak Akses Sistunis)
+INSERT INTO roles (name, description) VALUES
+    ('super_admin', 'Akses Penuh: Ketua Yayasan & Pengembang Sistem.'),
+    ('mudiir', 'Akses Monitoring & Laporan: Kepala Sekolah/Penanggung Jawab Harian.'),
+    ('admin_tu', 'Akses Keuangan, Input Data Harian, Absensi, dan Loket Uang Saku.'),
+    ('asaatidzah', 'Akses Input Nilai, Absensi, dan Upload Materi E-Learning Ringan.'),
+    ('wali_santri', 'Akses Monitoring Anak (Keuangan, Absensi, Nilai) + Portal Santri.')
+ON CONFLICT (name) DO NOTHING; -- Agar tidak error jika sudah pernah di-insert
+CREATE TABLE IF NOT EXISTS users (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    email VARCHAR(255) UNIQUE NOT NULL,
+    password_hash VARCHAR(255) NOT NULL, -- Kolom Bcrypt
+    role_id INTEGER REFERENCES roles(id) ON DELETE RESTRICT DEFAULT 5, -- Default ke wali_santri
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+\q
+\d users
+SELECT id, name, email, role_id FROM users;
+ALTER TABLE users ADD COLUMN role_id INTEGER DEFAULT 5;
+ALTER TABLE users ADD CONSTRAINT fk_role
+FOREIGN KEY (role_id)
+REFERENCES roles (id)
+ON DELETE RESTRICT;
+\d users
+CREATE TABLE IF NOT EXISTS students (
+    id SERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    nis VARCHAR(50) UNIQUE NOT NULL,                       -- Nomor Induk Santri
+    qr_code_uid VARCHAR(100) UNIQUE NOT NULL,             -- Kunci untuk Scan QR
+    saldo_uang_saku NUMERIC(15, 2) DEFAULT 0.00 NOT NULL, -- Saldo Real-Time (Crucial!)
+    class_id INTEGER,                                     -- FK ke tabel CLASSES
+    wali_santri_id INTEGER REFERENCES users(id) ON DELETE RESTRICT, -- Kunci ke akun Wali Santri
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+CREATE TABLE IF NOT EXISTS transactions (
+    id BIGSERIAL PRIMARY KEY,
+    student_id INTEGER REFERENCES students(id) ON DELETE RESTRICT, -- Santri yang bertransaksi
+    executed_by_user_id INTEGER REFERENCES users(id) ON DELETE RESTRICT, -- Admin TU/Wali yang melakukan (Audit Trail!)
+    transaction_type VARCHAR(50) NOT NULL, -- 'cash_withdrawal', 'top_up_cash', 'top_up_gateway', 'fee_payment'
+    nominal NUMERIC(15, 2) NOT NULL,
+    notes TEXT,
+    is_daily_allowance BOOLEAN DEFAULT FALSE, -- Penanda untuk Jatah Harian
+    balance_before NUMERIC(15, 2) NOT NULL, -- Saldo sebelum transaksi (Penting untuk audit!)
+    balance_after NUMERIC(15, 2) NOT NULL,  -- Saldo setelah transaksi
+    transaction_time TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+\d users
+\d students
+\d transactions
+-- Contoh Insert Data Santri Testing
+INSERT INTO students 
+    (name, nis, qr_code_uid, saldo_uang_saku, class_id, wali_santri_id) 
+VALUES 
+    ('Santri Test 001', 'ST001', 'QR-001-ALPHA', 50000.00, 1, NULL); 
+    -- Sesuaikan class_id jika sudah ada, wali_santri_id bisa NULL jika belum ada akun wali
+\d students
+\q
+SELECT id, name, email, password_hash, role_id FROM users WHERE email = 'admin.tu.test@sistunis.com';
+\q
+UPDATE users
+SET role_id = 3
+WHERE id = 4;
+\q
+UPDATE users
+SET role_id = 3
+WHERE id = 4;
+\q
+CREATE TABLE IF NOT EXISTS classes (
+    id SERIAL PRIMARY KEY,
+    class_name VARCHAR(100) UNIQUE NOT NULL, -- Contoh: Kelas 7 Reguler, Kelas 10 IPA
+    level VARCHAR(50),                       -- Contoh: SMP, SMA, Ulya
+    description TEXT
+);
+\d classes
+INSERT INTO classes (class_name, level) VALUES
+('Kelas 7 Reguler', 'SMP'),
+('Kelas 8 Tahfidz', 'SMP'),
+('Kelas 10 IPS', 'SMA'),
+('Kelas 11 IPA', 'SMA');
+\q
+-- Asumsi ID 50 adalah ID user Wali Santri baru ente
+INSERT INTO users (name, email, password_hash, role_id) 
+VALUES ('Wali Test', 'wali.test@sistunis.com', '$2a$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 5) 
+RETURNING id;
+-- Ganti 50 dengan ID Wali Santri yang ente dapat
+UPDATE students
+SET wali_santri_id = 50
+WHERE qr_code_uid = 'QR-001-ALPHA';
+UPDATE students
+SET wali_santri_id = 5  -- <-- Ganti ke ID 5 yang baru ente dapat!
+WHERE qr_code_uid = 'QR-001-ALPHA';
+\q
+INSERT INTO users (name, email, password_hash, role_id) 
+VALUES ('Wali Test', 'wali.test@sistunis.com', '$2a$10$XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX', 5)
+DELETE FROM users WHERE id = 5;
+curl -X POST \
+  http://localhost:3000/api/users/register \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Wali Test Baru",
+    "email": "wali.test@sistunis.com",
+    "password": "adminpass123" 
+}'
+\q
+UPDATE students
+SET wali_santri_id = NULL
+WHERE qr_code_uid = 'QR-001-ALPHA';
+DELETE FROM users WHERE email = 'wali.test@sistunis.com';
+\q
+UPDATE users
+SET role_id = 5
+WHERE id = 7;
+UPDATE students
+SET wali_santri_id = 7
+WHERE qr_code_uid = 'QR-001-ALPHA';
+\q
+CREATE TABLE IF NOT EXISTS attendance (
+    id SERIAL PRIMARY KEY,
+    student_id INTEGER REFERENCES students(id) ON DELETE CASCADE NOT NULL,
+    executed_by_user_id INTEGER REFERENCES users(id) ON DELETE RESTRICT NOT NULL,
+    check_in_time TIMESTAMP WITH TIME ZONE,
+    check_out_time TIMESTAMP WITH TIME ZONE,
+    date DATE NOT NULL,
+    CONSTRAINT unique_student_date UNIQUE (student_id, date) -- Santri hanya bisa absen sekali per hari
+);
+-- Hapus constraint unik lama (hanya satu absen per hari)
+ALTER TABLE attendance DROP CONSTRAINT IF EXISTS unique_student_date;
+
+-- Tambahkan kolom baru untuk menyimpan jenis aktivitas
+ALTER TABLE attendance ADD COLUMN activity_type VARCHAR(50) DEFAULT 'PONDOK' NOT NULL; 
+
+-- Tambahkan constraint unik baru: Santri hanya bisa absen sekali untuk TIPE KEGIATAN TERTENTU per tanggal.
+-- Contoh: Absen PONDOK cuma bisa sekali/hari, Absen RIHLAH cuma bisa sekali/hari.
+ALTER TABLE attendance ADD CONSTRAINT unique_student_activity_date UNIQUE (student_id, date, activity_type);
+\q
+CREATE TABLE IF NOT EXISTS activities (
+    id SERIAL PRIMARY KEY,
+    activity_name VARCHAR(100) NOT NULL UNIQUE,
+    activity_code VARCHAR(50) UNIQUE,
+    is_daily BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+-- Masukkan data dasar PONDOK (Check-In/Out) dan contoh RIHLAH
+INSERT INTO activities (activity_name, activity_code, is_daily) 
+VALUES 
+    ('Absensi Pondok (Masuk/Pulang)', 'PONDOK', TRUE),
+    ('Rihlah Akbar', 'RIHLAH_AKBAR', FALSE)
+ON CONFLICT (activity_name) DO NOTHING;
+-- 1. Hapus constraint unik lama (hanya untuk pencegahan jika ada bug)
+ALTER TABLE attendance DROP CONSTRAINT IF EXISTS unique_student_activity_date;
+
+-- 2. Hapus kolom activity_type yang lama
+ALTER TABLE attendance DROP COLUMN IF EXISTS activity_type;
+
+-- 3. Tambahkan kolom activity_id (Foreign Key)
+ALTER TABLE attendance ADD COLUMN activity_id INTEGER 
+    REFERENCES activities(id) ON DELETE RESTRICT DEFAULT (
+        (SELECT id FROM activities WHERE activity_code = 'PONDOK')
+    ) NOT NULL;
+
+-- 4. Tambahkan constraint unik baru: Absen cuma sekali per Santri per Tanggal per AKTIVITAS.
+ALTER TABLE attendance ADD CONSTRAINT unique_student_activity_date_new UNIQUE (student_id, date, activity_id);
+\q
+-- 1. Hapus constraint unik lama (hanya untuk pencegahan jika ada bug)
+ALTER TABLE attendance DROP CONSTRAINT IF EXISTS unique_student_activity_date;
+
+-- 2. Hapus kolom activity_type yang lama
+ALTER TABLE attendance DROP COLUMN IF EXISTS activity_type;
+
+-- 3. Tambahkan kolom activity_id (Foreign Key)
+ALTER TABLE attendance ADD COLUMN activity_id INTEGER 
+    REFERENCES activities(id) ON DELETE RESTRICT DEFAULT (
+        (SELECT id FROM activities WHERE activity_code = 'PONDOK')
+    ) NOT NULL;
+
+-- 4. Tambahkan constraint unik baru: Absen cuma sekali per Santri per Tanggal per AKTIVITAS.
+ALTER TABLE attendance ADD CONSTRAINT unique_student_activity_date_new UNIQUE (student_id, date, activity_id);
+\q
+-- Hapus kolom activity_type yang lama (aman jika sudah hilang)
+ALTER TABLE attendance DROP COLUMN IF EXISTS activity_type;
+ALTER TABLE attendance DROP CONSTRAINT IF EXISTS unique_student_activity_date;
+-- Tambahkan kolom activity_id (sementara NULL)
+ALTER TABLE attendance ADD COLUMN activity_id INTEGER 
+    REFERENCES activities(id) ON DELETE RESTRICT;
+-- UPDATE semua record lama menjadi ACTIVITY_ID 1 (PONDOK)
+UPDATE attendance SET activity_id = 1 WHERE activity_id IS NULL;
+-- Set kolom agar wajib diisi (NOT NULL)
+ALTER TABLE attendance ALTER COLUMN activity_id SET NOT NULL;
+
+-- Tambahkan constraint unik baru
+ALTER TABLE attendance ADD CONSTRAINT unique_student_activity_date_new UNIQUE (student_id, date, activity_id);
+SELECT student_id, date, activity_id, COUNT(*)
+FROM attendance
+GROUP BY student_id, date, activity_id
+HAVING COUNT(*) > 1;
+-- Hapus semua record absensi Santri ID 1 untuk tanggal 2025-11-02
+DELETE FROM attendance
+WHERE student_id = 1 AND date = '2025-11-02';
+-- Tambahkan constraint unik baru (Ulangi langkah ini!)
+ALTER TABLE attendance ADD CONSTRAINT unique_student_activity_date_new UNIQUE (student_id, date, activity_id);
+\q
+SELECT id, username, password, role_id, created_at FROM users;
+SELECT id, name, password, role_id, created_at FROM users;
+SELECT id, name, role_id, created_at FROM users;
+\q
+UPDATE users SET role_id = 3 WHERE email = 'admin.tu.test@sistunis.com';
+SELECT id, name, email, role_id FROM users WHERE email = 'admin.tu.test@sistunis.com';
+\q
+\d users;
+\q
+UPDATE users SET role_id = 3 WHERE email = 'admin_tu@sistunis.com' RETURNING id, name, role_id;
+\d
+\q
+]d
+\d
+\d attendance
+-- Query buat menambahkan kolom IP Address
+ALTER TABLE attendance 
+ADD COLUMN executed_from_ip VARCHAR(45) DEFAULT NULL;
+\d attendance
+sistunis_db=> SELECT email, password FROM users WHERE email='admin_tu@sistunis.com';
+SELECT email, password FROM users WHERE email='admin_tu@sistunis.com';
+\s users

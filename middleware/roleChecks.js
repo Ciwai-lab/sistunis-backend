@@ -4,6 +4,7 @@
 // Sebaiknya Role ID ini disimpan di file constants.js atau dibaca dari DB,
 // tapi untuk sementara kita hardcode dulu:
 const ROLE_ID = {
+    SUPER_ADMIN: 1,
     ADMIN_TU: 3,         // Misalnya, ID 3 untuk Admin Tata Usaha (yang pegang scanner/withdraw)
     WALI_SANTRI: 5,      // Misalnya, ID 5 untuk Wali Santri (bisa lihat data santri sendiri)
     FINANCE_AUDITOR: 9,  // Misalnya, ID 9 untuk Auditor Keuangan (bisa buat/hapus aktivitas)
@@ -48,5 +49,19 @@ exports.isFinanceAuditor = (req, res, next) => {
         next();
     } else {
         res.status(403).json({ status: 'fail', message: 'Akses ditolak. Hanya Auditor Keuangan yang diizinkan.' });
+    }
+};
+
+exports.isSuperAdmin = (req, res, next) => {
+    // Memeriksa apakah user sudah login (auth middleware sudah lewat)
+    if (!req.user) {
+        return res.status(401).json({ status: 'fail', message: 'Unauthorized. Token required.' });
+    }
+
+    // Memeriksa apakah role_id user sesuai (ID 1)
+    if (req.user.role_id === ROLE_ID.SUPER_ADMIN) {
+        next(); // Lanjutkan jika role_id cocok
+    } else {
+        res.status(403).json({ status: 'fail', message: 'Akses ditolak. Hanya Super Admin yang diizinkan.' });
     }
 };

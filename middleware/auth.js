@@ -1,38 +1,19 @@
-// File: middleware/auth.js
-
+// middleware/auth.js
 const jwt = require('jsonwebtoken');
+require('dotenv').config();
 
-module.exports = function (req, res, next) {
-    // 1. Ganti: Ambil header 'Authorization' (standar industri)
-    // Token dikirim sebagai: Authorization: Bearer <token>
-    const authHeader = req.header('Authorization');
+module.exports = (req, res, next) => {
+    const authHeader = req.headers.authorization || '';
+    const token = authHeader.startsWith('Bearer ') ? authHeader.split(' ')[1] : null;
 
-    if (!authHeader) {
-        // Jika header Authorization tidak ada
-        return res.status(401).json({ msg: 'Akses ditolak. Token tidak ditemukan.' });
-    }
+    if (!token) return res.status(401).json({ status: 'fail', message: 'Unauthorized' });
 
-    // 2. Cek format 'Bearer '
-    if (!authHeader.startsWith('Bearer ')) {
-        return res.status(401).json({ msg: 'Akses ditolak. Format token harus "Bearer <token>".' });
-    }
-
-    // Pisahkan 'Bearer ' dari token yang sebenarnya
-    const token = authHeader.substring(7); // Ambil string setelah "Bearer " (7 karakter)
-
-    // 3. Verifikasi Token
     try {
-        // Memverifikasi token dengan Secret Key
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-
-        // Menambahkan data user dari token ke objek request (req.user)
-        req.user = decoded.user;
-
-        // Lanjutkan ke fungsi (endpoint) berikutnya
+        const payload = jwt.verify(token, process.env.JWT_SECRET);
+        // attach minimal user info
+        req.user = { id: payload.id, email: payload.email, role_id: payload.role_id };
         next();
-
     } catch (e) {
-        // Jika token tidak valid (expired, diubah, dll.)
-        res.status(401).json({ msg: 'Token tidak valid atau kadaluarsa. Silakan login ulang.' });
+        return res.status(401).json({ status: 'fail', message: 'Invalid or expired token' });
     }
 };
